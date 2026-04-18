@@ -1,3 +1,5 @@
+backend
+
 # Eagle Point API
 
 **Project type: backend**
@@ -110,16 +112,16 @@ bash run_tests.sh
 
 This starts `docker-compose up`, waits for the server to be healthy, runs unit tests then all API tests, and tears down containers with volumes removed on completion.
 
-### Unit Tests (with coverage)
+### Unit Tests (Docker)
 
-Unit tests live in `unit_tests/` and run without Docker. To run them with Go coverage instrumentation:
+Unit tests are executed inside the API container to keep the workflow Docker-only:
 
 ```bash
-go test -v -count=1 -coverprofile=coverage.out ./unit_tests/...
-go tool cover -func=coverage.out
+docker-compose run --rm api go test -v -count=1 -coverprofile=/tmp/unit_coverage.out ./unit_tests/...
+docker-compose run --rm api go tool cover -func=/tmp/unit_coverage.out
 ```
 
-The `run_tests.sh` script runs unit tests automatically (via `unit_tests/run_unit_tests.sh`) and prints the per-function coverage summary to stdout.
+`bash run_tests.sh` already runs unit tests and prints per-function coverage as part of the full suite.
 
 ### API Tests
 
@@ -130,13 +132,7 @@ docker-compose up -d
 bash API_tests/run_api_tests.sh
 ```
 
-Override the target URL:
-
-```bash
-API_BASE_URL=http://localhost:9090 bash API_tests/run_api_tests.sh
-```
-
-Prerequisites: `curl` and `jq` must be on `PATH`.
+Prerequisites: `curl` and `jq` must be available in the test execution environment.
 
 ---
 

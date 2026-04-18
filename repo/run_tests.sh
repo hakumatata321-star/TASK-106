@@ -70,18 +70,17 @@ if [ "$RUN_API" = true ]; then
     else
         # Start Docker services if managing docker
         if [ "$MANAGE_DOCKER" = true ]; then
-            if [ -z "${API_BASE_URL:-}" ]; then
-                if [ -z "${API_PORT:-}" ] && is_port_in_use "$API_HOST_PORT"; then
-                    for candidate in 18080 28080 38080; do
-                        if ! is_port_in_use "$candidate"; then
-                            API_HOST_PORT="$candidate"
-                            break
-                        fi
-                    done
-                fi
-                export API_BASE_URL="http://localhost:${API_HOST_PORT}"
+            # When we manage Docker ourselves, always target the local instance.
+            # Ignore any externally-set API_BASE_URL (e.g. from CI environment).
+            if [ -z "${API_PORT:-}" ] && is_port_in_use "$API_HOST_PORT"; then
+                for candidate in 18080 28080 38080; do
+                    if ! is_port_in_use "$candidate"; then
+                        API_HOST_PORT="$candidate"
+                        break
+                    fi
+                done
             fi
-
+            export API_BASE_URL="http://localhost:${API_HOST_PORT}"
             export API_PORT="${API_HOST_PORT}"
 
             echo "[$(date '+%Y-%m-%d %H:%M:%S')] Starting Docker services..."

@@ -97,12 +97,14 @@ if [ "$RUN_API" = true ]; then
             fi
 
             if [ "$API_EXIT" -eq 0 ]; then
-                # Build and start
+                # Build and start; --wait blocks until all healthchecks pass
                 $DC build --quiet 2>&1 | tail -5
-                $DC up -d 2>&1
-
-                echo "[$(date '+%Y-%m-%d %H:%M:%S')] Waiting for services to be healthy..."
-                sleep 5
+                echo "[$(date '+%Y-%m-%d %H:%M:%S')] Starting services and waiting for healthy..."
+                if ! $DC up -d --wait 2>&1; then
+                    echo "ERROR: services did not become healthy"
+                    $DC logs api 2>&1 | tail -30
+                    API_EXIT=1
+                fi
 
                 # Run API tests
                 if bash API_tests/run_api_tests.sh; then

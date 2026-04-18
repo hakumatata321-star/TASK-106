@@ -19,11 +19,13 @@ echo ""
 echo "[$(date '+%Y-%m-%d %H:%M:%S')] Starting unit tests..."
 echo ""
 
-if go test -v -count=1 ./unit_tests/... 2>&1 | tee /tmp/unit_test_output.txt; then
+if go test -v -count=1 -coverprofile=/tmp/unit_coverage.out ./unit_tests/... 2>&1 | tee /tmp/unit_test_output.txt; then
     UNIT_EXIT=0
 else
     UNIT_EXIT=1
 fi
+
+go tool cover -func=/tmp/unit_coverage.out 2>/dev/null || true
 
 echo ""
 echo "=============================================="

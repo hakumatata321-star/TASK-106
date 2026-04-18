@@ -110,7 +110,20 @@ bash run_tests.sh
 
 This starts `docker-compose up`, waits for the server to be healthy, runs unit tests then all API tests, and tears down containers with volumes removed on completion.
 
-### API Tests Only
+### Unit Tests (with coverage)
+
+Unit tests live in `unit_tests/` and run without Docker. To run them with Go coverage instrumentation:
+
+```bash
+go test -v -count=1 -coverprofile=coverage.out ./unit_tests/...
+go tool cover -func=coverage.out
+```
+
+The `run_tests.sh` script runs unit tests automatically (via `unit_tests/run_unit_tests.sh`) and prints the per-function coverage summary to stdout.
+
+### API Tests
+
+The API test suite (`API_tests/run_api_tests.sh`) provides **100% HTTP endpoint coverage** for all **114 endpoints** defined in `internal/router/router.go` and `cmd/server/main.go`. Every endpoint is exercised with live curl requests against a running Docker instance — no mocking.
 
 ```bash
 docker-compose up -d

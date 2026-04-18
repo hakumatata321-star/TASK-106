@@ -705,6 +705,10 @@ assert_status "Auditor cannot purge (403)" "403" "$(parse_status "$RESP")"
 RESP=$(do_request POST "$BASE_URL/api/audit/hash-chain/build" "{\"date\":\"$TODAY\"}" "$ADMIN_TOKEN")
 assert_status "Admin can build hash chain (201)" "201" "$(parse_status "$RESP")"
 
+# Admin CAN purge expired audit logs
+RESP=$(do_request POST "$BASE_URL/api/audit/purge-expired" '{}' "$ADMIN_TOKEN")
+assert_status "Admin can purge expired audit logs (200)" "200" "$(parse_status "$RESP")"
+
 # Auditor CAN verify (read-only)
 RESP=$(do_request GET "$BASE_URL/api/audit/hash-chain/verify?date=$TODAY" "" "$AUDITOR_TOKEN")
 assert_status "Auditor can verify hash chain (200)" "200" "$(parse_status "$RESP")"
